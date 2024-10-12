@@ -1,15 +1,15 @@
+import { createFile } from '@/services/fileService'
+import { uploadS3File } from '@/services/s3Service'
+import { getUserByAuthId } from '@/services/userService'
 import { getSession } from '@auth0/nextjs-auth0'
 import { NextRequest, NextResponse } from 'next/server'
-import { createFile } from '@/services/fileService'
-import { getUserByAuthId } from '@/services/userService'
-import { uploadS3File } from '@/services/s3Service'
 
 /**
  * POST /api/files
  *
  * Create a new file in the database and S3 bucket
  */
-const POST = async (req: NextRequest): Promise<NextResponse> => {
+export async function POST(req: NextRequest): Promise<NextResponse> {
     try {
         const session = await getSession()
         if (!session) {
@@ -44,5 +44,3 @@ const POST = async (req: NextRequest): Promise<NextResponse> => {
         return NextResponse.json({ error: error.message || 'Error creating file' }, { status: 500 })
     }
 }
-
-export { POST }

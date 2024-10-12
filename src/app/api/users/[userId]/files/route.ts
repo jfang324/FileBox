@@ -1,14 +1,14 @@
-import { getSession } from '@auth0/nextjs-auth0'
-import { NextRequest, NextResponse } from 'next/server'
 import { getUserFiles } from '@/services/fileService'
 import { getUserByAuthId } from '@/services/userService'
+import { getSession } from '@auth0/nextjs-auth0'
+import { NextRequest, NextResponse } from 'next/server'
 
 /*
  * GET /api/users/:userId/files
  *
  * Get all files owned by the user
  */
-const GET = async (req: NextRequest, { params }: { params: { userId: string } }): Promise<NextResponse> => {
+export async function GET(req: NextRequest, { params }: { params: { userId: string } }): Promise<NextResponse> {
     try {
         const session = await getSession()
         if (!session) {
@@ -38,5 +38,3 @@ const GET = async (req: NextRequest, { params }: { params: { userId: string } })
         return NextResponse.json({ error: error.message || 'Error getting user files' }, { status: 500 })
     }
 }
-
-export { GET }

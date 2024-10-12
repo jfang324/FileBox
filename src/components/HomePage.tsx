@@ -1,53 +1,45 @@
 'use client'
-
-import { useState, useRef, useMemo, useEffect } from 'react'
-import { useUser } from '@auth0/nextjs-auth0/client'
+import FileList from '@/components/FileList'
+import Menu from '@/components/Menu'
+import SettingsDialog from '@/components/SettingsDialog'
+import ShareDialog from '@/components/ShareDialog'
+import UploadDialog from '@/components/UploadDialog'
 import { FileDocument } from '@/interfaces/FileDocument'
 import {
-    retrieveUserDetails,
-    retrieveFiles,
-    uploadFile,
     deleteFile,
-    changeUserName,
     initializeUserDetails,
-    shareFile,
-    unShareFile,
+    retrieveFiles,
     retrievePresignedUrl,
+    retrieveUserDetails,
 } from '@/lib/utils'
-import FileList from '@/components/FileList'
-import UploadDialog from './UploadDialog'
-import SettingsDialog from '@/components/SettingsDialog'
-import ShareDialog from './ShareDialog'
+import { useUser } from '@auth0/nextjs-auth0/client'
+import { useEffect, useMemo, useRef, useState } from 'react'
 
 const HomePage = () => {
     //state associated with the account
     const { user, error, isLoading } = useUser()
-    const [mongoId, setMongoId] = useState<string>('')
+    const [userMongoId, setUserMongoId] = useState<string>('')
     const [name, setName] = useState<string>('')
     const [email, setEmail] = useState<string>('')
 
-    //state & refs associated with file uploads
+    // refs for triggering dialogs & menus
+    const menuTriggerRef = useRef<HTMLButtonElement>(null)
     const fileUploadTriggerRef = useRef<HTMLButtonElement>(null)
-    const fileUploadInputRef = useRef<HTMLInputElement>(null)
-    const [file, setFile] = useState<File | undefined>()
-
-    //refs associated with the account settings
     const settingsTriggerRef = useRef<HTMLButtonElement>(null)
-    const settingsInputRef = useRef<HTMLInputElement>(null)
-
-    //state & refs associated with file sharing
     const shareTriggerRef = useRef<HTMLButtonElement>(null)
+
+    //state associated with the file list & visibility
+    const [searchTerm, setSearchTerm] = useState<string>('')
+    const [fileTypeFilter, setFileTypeFilter] = useState<string>('all')
+    const [files, setFiles] = useState<(FileDocument & { owner: string })[]>([])
+    const [visibleFiles, setVisibleFiles] = useState<(FileDocument & { owner: string })[]>([])
+
+    // state associated with file sharing
     const [sharedFileId, setSharedFileId] = useState<string>('')
     const [sharedFileName, setSharedFileName] = useState<string>('')
 
-    //state associated with the file list & visibility
-    const [files, setFiles] = useState<(FileDocument & { owner: string })[]>([])
-    const [searchTerm, setSearchTerm] = useState<string>('')
-    const [fileTypeFilter, setFileTypeFilter] = useState<string>('all')
-    const [visibleFiles, setVisibleFiles] = useState<(FileDocument & { owner: string })[]>([])
-
     //state associated with file selection
-    const [selectedFiles, setSelectedFiles] = useState<Set<string>>(new Set())
+    const [selectedFiles, setSelectedFiles] = useState<string[]>([])
     const [activeSection, setActiveSection] = useState<'my-files' | 'shared'>('my-files')
 
     //calculates the available file types
@@ -56,26 +48,31 @@ const HomePage = () => {
         return ['all', ...Array.from(types)]
     }, [files])
 
+    /**
+     * Updates the files list and selected files
+     *
+     * @param id - The mongoId of the user
+     * @param section - The active section
+     */
+    const updateFiles = async (id: string, section: 'my-files' | 'shared') => {
+        const userFiles = await retrieveFiles(id, section)
+        setFiles(userFiles)
+        setSelectedFiles([])
+    }
+
     //initialize user details and files
     useEffect(() => {
         const init = async () => {
-            if (isLoading || error) {
+            if (isLoading || error || !user) {
                 return
             }
 
-            if (user) {
-                try {
-                    const userDetails = await retrieveUserDetails()
-                    initializeUserDetails(setMongoId, setName, setEmail, userDetails)
-                    const userFiles = await retrieveFiles(userDetails._id as string, activeSection)
-                    setFiles(userFiles)
-                    setVisibleFiles(userFiles)
-                    setSelectedFiles(new Set())
-                } catch (error) {
-                    alert(error)
-                }
-            } else {
-                alert('Error on initial load')
+            try {
+                const userDetails = await retrieveUserDetails()
+                initializeUserDetails(setUserMongoId, setName, setEmail, userDetails)
+                await updateFiles(userDetails._id as string, activeSection)
+            } catch (error) {
+                alert(error)
             }
         }
         init()
@@ -108,27 +105,6 @@ const HomePage = () => {
     }, [searchTerm, fileTypeFilter, files])
 
     /**
-     * Handles file upload and refreshing files
-     */
-    const handleUpload = async () => {
-        if (mongoId && file) {
-            try {
-                const fileDetails = await uploadFile(file)
-                if (fileDetails) {
-                    const updatedFiles = await retrieveFiles(mongoId, activeSection)
-                    if (updatedFiles) {
-                        setFiles(updatedFiles)
-                    }
-                }
-            } catch (error) {
-                alert(error)
-            }
-        } else {
-            alert('File not selected or account doesn not exist in database')
-        }
-    }
-
-    /**
      * Handles file selection
      *
      * @param id - The mongoId of the file
@@ -142,47 +118,22 @@ const HomePage = () => {
             existingSet.add(id)
         }
 
-        setSelectedFiles(existingSet)
+        setSelectedFiles(Array.from(existingSet))
     }
 
     /**
      * Handles file deletion and refreshing files
      */
     const handleDeleteSelected = async () => {
-        if (mongoId && selectedFiles.size > 0) {
+        if (userMongoId && selectedFiles.length > 0) {
             try {
-                await Promise.all(Array.from(selectedFiles).map((fileId) => deleteFile(fileId)))
-                const updatedFiles = await retrieveFiles(mongoId, activeSection)
-                if (updatedFiles) {
-                    setFiles(updatedFiles)
-                }
-                setSelectedFiles(new Set())
+                await Promise.all(selectedFiles.map((fileId) => deleteFile(fileId)))
+                await updateFiles(userMongoId, activeSection)
             } catch (error) {
                 alert(error)
             }
         } else {
-            alert(`Error deleting files. ${selectedFiles.size} files selected. mongoId: ${mongoId}`)
-        }
-    }
-
-    /**
-     * Handles changing account settings. Currently only changes name
-     */
-    const handleChangeSettings = async (newName: string) => {
-        if (newName) {
-            try {
-                const userDetails = await changeUserName(newName)
-                if (userDetails) {
-                    initializeUserDetails(setMongoId, setName, setEmail, userDetails)
-                    const userFiles = await retrieveFiles(userDetails._id as string, activeSection)
-                    if (userFiles) {
-                        setFiles(userFiles)
-                        setVisibleFiles(userFiles)
-                    }
-                }
-            } catch (error) {
-                alert(error)
-            }
+            alert(`Error deleting files. ${selectedFiles.length} files selected. userMongoId: ${userMongoId}`)
         }
     }
 
@@ -193,39 +144,7 @@ const HomePage = () => {
      */
     const handleSectionChange = async (section: 'my-files' | 'shared') => {
         setActiveSection(section)
-        const userFiles = await retrieveFiles(mongoId, section)
-        if (userFiles) {
-            setFiles(userFiles)
-        }
-    }
-
-    /**
-     * Handles sharing a file with a recipient
-     *
-     * @param fileId - The mongoId of the file
-     * @param recipientEmail - The email of the recipient
-     * @param action - The action to perform. Either 'share' or 'unshare'
-     */
-    const handleShare = async (fileId: string, recipientEmail: string, action: 'share' | 'unshare') => {
-        if (fileId && recipientEmail) {
-            if (recipientEmail === email) {
-                alert('You cannot share a file with yourself')
-            } else if (action === 'share') {
-                try {
-                    await shareFile(fileId, recipientEmail)
-                    alert(`${sharedFileName} shared with ${recipientEmail}`)
-                } catch (error) {
-                    alert(error)
-                }
-            } else {
-                try {
-                    await unShareFile(fileId, recipientEmail)
-                    alert(`${sharedFileName} unshared with ${recipientEmail}`)
-                } catch (error) {
-                    alert(error)
-                }
-            }
-        }
+        await updateFiles(userMongoId, section)
     }
 
     /**
@@ -268,8 +187,6 @@ const HomePage = () => {
     return (
         <div className="h-screen bg-gray-100 flex overflow-hidden">
             <FileList
-                activeSection={activeSection}
-                handleSectionChange={handleSectionChange}
                 searchTerm={searchTerm}
                 handleSearch={(e: React.ChangeEvent<HTMLInputElement>) => setSearchTerm(e.target.value)}
                 fileTypeFilter={fileTypeFilter}
@@ -277,34 +194,32 @@ const HomePage = () => {
                 fileTypes={fileTypes}
                 files={visibleFiles}
                 selectedFiles={selectedFiles}
-                triggerUpload={() => fileUploadTriggerRef.current?.click()}
-                triggerSettings={() => settingsTriggerRef.current?.click()}
                 triggerShare={triggerShare}
+                triggerMenu={() => menuTriggerRef.current?.click()}
                 handleSelectFile={handleSelectFile}
                 handleDeleteSelected={handleDeleteSelected}
                 handleDownload={handleDownload}
+            />
+            <Menu
+                activeSection={activeSection}
+                triggerRef={menuTriggerRef}
+                triggerUpload={() => fileUploadTriggerRef.current?.click()}
+                triggerSettings={() => settingsTriggerRef.current?.click()}
+                handleSectionChange={handleSectionChange}
                 handleLogout={handleLogout}
             />
-            <UploadDialog
-                userMongoId={mongoId}
-                file={file}
-                handleFileChange={(e: React.ChangeEvent<HTMLInputElement>) => setFile(e.target.files?.[0])}
-                handleUpload={handleUpload}
-                inputRef={fileUploadInputRef}
-                triggerRef={fileUploadTriggerRef}
-            />
+            <UploadDialog triggerRef={fileUploadTriggerRef} onSuccess={() => updateFiles(userMongoId, activeSection)} />
             <SettingsDialog
-                userMongoId={mongoId}
-                userName={name}
+                authId={user!.sub as string}
                 userEmail={email}
-                handleChangeSettings={handleChangeSettings}
-                settingsTriggerRef={settingsTriggerRef}
-                settingsInputRef={settingsInputRef}
+                userName={name}
+                triggerRef={settingsTriggerRef}
+                onSuccess={() => updateFiles(userMongoId, activeSection)}
             />
             <ShareDialog
                 fileId={sharedFileId}
                 fileName={sharedFileName}
-                handleShare={handleShare}
+                userEmail={email}
                 triggerRef={shareTriggerRef}
             />
         </div>

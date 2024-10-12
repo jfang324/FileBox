@@ -1,7 +1,7 @@
 'use client'
 
-import { Checkbox } from '@/components/ui/checkbox'
 import { Button } from '@/components/ui/button'
+import { Checkbox } from '@/components/ui/checkbox'
 import { Download, Share2 } from 'lucide-react'
 
 interface FileEntryProps {

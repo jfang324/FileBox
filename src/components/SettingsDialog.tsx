@@ -1,32 +1,37 @@
-'use client'
-
 import { Button } from '@/components/ui/button'
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
-import { User, Mail, Key } from 'lucide-react'
+import { changeUserSettings } from '@/lib/utils'
+import { IdCard, Mail, User } from 'lucide-react'
 
 interface SettingsDialogProps {
-    userMongoId: string
-    userName: string
+    authId: string
     userEmail: string
-    settingsTriggerRef: React.RefObject<HTMLButtonElement>
-    settingsInputRef: React.RefObject<HTMLInputElement>
-    handleChangeSettings: (newName: string) => void
+    userName: string
+    triggerRef: React.RefObject<HTMLButtonElement>
+    onSuccess: () => void
 }
 
-const SettingsDialog = ({
-    userMongoId,
-    userName,
-    userEmail,
-    settingsTriggerRef,
-    settingsInputRef,
-    handleChangeSettings,
-}: SettingsDialogProps) => {
+const SettingsDialog = ({ authId, userName, userEmail, triggerRef, onSuccess }: SettingsDialogProps) => {
+    // Change the accounts settings
+    const handleChangeSettings = async (name: string) => {
+        if (name) {
+            try {
+                const userDetails = await changeUserSettings(name)
+                if (userDetails) {
+                    onSuccess()
+                }
+            } catch (error) {
+                alert(error)
+            }
+        }
+    }
+
     return (
         <Dialog>
             <DialogTrigger asChild>
-                <Button ref={settingsTriggerRef} className="hidden">
+                <Button ref={triggerRef} className="hidden">
                     Edit Account Settings
                 </Button>
             </DialogTrigger>
@@ -36,24 +41,24 @@ const SettingsDialog = ({
                 </DialogHeader>
                 <form
                     className="space-y-4"
-                    onSubmit={(e) => {
+                    onSubmit={async (e) => {
                         e.preventDefault()
                         const formData = new FormData(e.currentTarget)
-                        const newName = formData.get('name') as string
-                        handleChangeSettings(newName)
+                        const name = formData.get('name') as string
+                        await handleChangeSettings(name)
                     }}
                 >
                     <div className="space-y-2">
-                        <Label htmlFor="userId" className="text-sm font-medium">
+                        <Label htmlFor="userId" className="text-sm font-medium text-gray-700">
                             User ID
                         </Label>
                         <div className="flex items-center space-x-2">
-                            <Key className="h-4 w-4 text-gray-500" />
+                            <IdCard className="h-4 w-4 text-gray-500" />
                             <Input
                                 type="text"
                                 disabled={true}
-                                value={userMongoId}
-                                className="bg-gray-100 text-gray-600 rounded"
+                                value={authId}
+                                className="bg-gray-100 text-gray-600 cursor-not-allowed"
                             />
                         </div>
                     </div>
@@ -66,7 +71,6 @@ const SettingsDialog = ({
                             <Input
                                 id="name"
                                 name="name"
-                                ref={settingsInputRef}
                                 type="text"
                                 placeholder={userName}
                                 className="bg-white text-gray-800 rounded"
@@ -96,5 +100,4 @@ const SettingsDialog = ({
         </Dialog>
     )
 }
-
 export default SettingsDialog

@@ -1,5 +1,5 @@
-import mongoose, { Schema } from 'mongoose'
 import { ShareDocument } from '@/interfaces/ShareDocument'
+import mongoose, { Schema } from 'mongoose'
 
 const shareSchema: Schema<ShareDocument> = new Schema({
     fileId: {

@@ -1,15 +1,15 @@
+import { getFileById } from '@/services/fileService'
+import { createShare, deleteShare } from '@/services/shareService'
+import { getUserByAuthId, getUserByEmail } from '@/services/userService'
 import { getSession } from '@auth0/nextjs-auth0'
 import { NextRequest, NextResponse } from 'next/server'
-import { getFileById } from '@/services/fileService'
-import { getUserByAuthId, getUserByEmail } from '@/services/userService'
-import { createShare, deleteShare } from '@/services/shareService'
 
 /**
  * POST /api/shares
  *
  * Create a new share between the file and the recipient
  */
-const POST = async (req: NextRequest): Promise<NextResponse> => {
+export async function POST(req: NextRequest): Promise<NextResponse> {
     try {
         const session = await getSession()
         if (!session) {
@@ -56,7 +56,7 @@ const POST = async (req: NextRequest): Promise<NextResponse> => {
  *
  * Delete a share between the file and the recipient
  */
-const DELETE = async (req: NextRequest): Promise<NextResponse> => {
+export async function DELETE(req: NextRequest): Promise<NextResponse> {
     try {
         const session = await getSession()
         if (!session) {
@@ -97,5 +97,3 @@ const DELETE = async (req: NextRequest): Promise<NextResponse> => {
         return NextResponse.json({ error: error.message || 'Error deleting share' }, { status: 500 })
     }
 }
-
-export { POST, DELETE }

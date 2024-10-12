@@ -1,5 +1,5 @@
-import mongoose, { Schema } from 'mongoose'
 import { UserDocument } from '@/interfaces/UserDocument'
+import mongoose, { Schema } from 'mongoose'
 
 const userSchema: Schema<UserDocument> = new Schema(
     {

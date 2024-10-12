@@ -1,16 +1,16 @@
+import { deleteFile, getFileById } from '@/services/fileService'
+import { deleteS3File, getS3PresignedUrl } from '@/services/s3Service'
+import { isShared } from '@/services/shareService'
+import { getUserByAuthId } from '@/services/userService'
 import { getSession } from '@auth0/nextjs-auth0'
 import { NextRequest, NextResponse } from 'next/server'
-import { deleteFile, getFileById } from '@/services/fileService'
-import { getUserByAuthId } from '@/services/userService'
-import { isShared } from '@/services/shareService'
-import { deleteS3File, getS3PresignedUrl } from '@/services/s3Service'
 
 /**
  * GET /api/files/:fileId
  *
  * Get a presigned URL for the file
  */
-const GET = async (req: NextRequest, { params }: { params: { fileId: string } }): Promise<NextResponse> => {
+export async function GET(req: NextRequest, { params }: { params: { fileId: string } }): Promise<NextResponse> {
     try {
         const session = await getSession()
         if (!session) {
@@ -51,7 +51,7 @@ const GET = async (req: NextRequest, { params }: { params: { fileId: string } })
  *
  * Delete a file from the database and S3 bucket
  */
-const DELETE = async (req: NextRequest, { params }: { params: { fileId: string } }): Promise<NextResponse> => {
+export async function DELETE(req: NextRequest, { params }: { params: { fileId: string } }): Promise<NextResponse> {
     try {
         const session = await getSession()
         if (!session) {
@@ -93,5 +93,3 @@ const DELETE = async (req: NextRequest, { params }: { params: { fileId: string }
         return NextResponse.json({ error: error.message || 'Error deleting file' }, { status: 500 })
     }
 }
-
-export { GET, DELETE }

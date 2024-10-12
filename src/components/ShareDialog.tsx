@@ -1,20 +1,43 @@
 'use client'
-
 import { Button } from '@/components/ui/button'
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import { shareFile, unShareFile } from '@/lib/utils'
 import { Mail, Share2 } from 'lucide-react'
 
 interface ShareDialogProps {
     fileId: string
     fileName: string
-    handleShare: (id: string, email: string, action: 'share' | 'unshare') => void
-    triggerRef?: React.RefObject<HTMLButtonElement>
+    userEmail: string
+    triggerRef: React.RefObject<HTMLButtonElement>
 }
 
-const ShareDialog = ({ fileId, fileName, handleShare, triggerRef }: ShareDialogProps) => {
+const ShareDialog = ({ fileId, fileName, userEmail, triggerRef }: ShareDialogProps) => {
+    // Shares the file with the recipient
+    const handleShare = async (fileId: string, recipientEmail: string, action: 'share' | 'unshare') => {
+        if (fileId && recipientEmail) {
+            if (recipientEmail === userEmail) {
+                alert('You cannot share a file with yourself')
+            } else if (action === 'share') {
+                try {
+                    await shareFile(fileId, recipientEmail)
+                    alert(`${fileName} shared with ${recipientEmail}`)
+                } catch (error) {
+                    alert(error)
+                }
+            } else {
+                try {
+                    await unShareFile(fileId, recipientEmail)
+                    alert(`${fileName} unshared with ${recipientEmail}`)
+                } catch (error) {
+                    alert(error)
+                }
+            }
+        }
+    }
+
     return (
         <Dialog>
             <DialogTrigger asChild>

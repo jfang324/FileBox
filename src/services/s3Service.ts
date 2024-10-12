@@ -1,6 +1,6 @@
-import { PutObjectCommand, GetObjectCommand, DeleteObjectCommand } from '@aws-sdk/client-s3'
+import getS3Client from '@/lib/s3'
+import { DeleteObjectCommand, GetObjectCommand, PutObjectCommand } from '@aws-sdk/client-s3'
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner'
-import getS3Client from '@/config/s3'
 
 const bucketName = process.env.BUCKET_NAME || ''
 
@@ -11,7 +11,7 @@ const bucketName = process.env.BUCKET_NAME || ''
  * @param file - The file to upload
  * @returns The result from the upload operation
  */
-export const uploadS3File = async (fileId: string, file: File) => {
+export async function uploadS3File(fileId: string, file: File) {
     if (!fileId || !file) {
         return
     }
@@ -39,7 +39,7 @@ export const uploadS3File = async (fileId: string, file: File) => {
  * @param fileId - The mongoId of the file
  * @returns The result from the delete operation
  */
-export const deleteS3File = async (fileId: string) => {
+export async function deleteS3File(fileId: string) {
     if (!fileId) {
         throw new Error('Missing fileId')
     }
@@ -65,7 +65,7 @@ export const deleteS3File = async (fileId: string) => {
  * @param fileId - The mongoId of the file
  * @returns The presigned URL
  */
-export const getS3PresignedUrl = async (fileId: string) => {
+export async function getS3PresignedUrl(fileId: string) {
     if (!fileId) {
         throw new Error('Missing fileId')
     }

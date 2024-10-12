@@ -1,13 +1,13 @@
+import { changeUserName, createIfNewUser } from '@/services/userService'
 import { getSession } from '@auth0/nextjs-auth0'
 import { NextRequest, NextResponse } from 'next/server'
-import { createIfNewUser, changeUserName } from '@/services/userService'
 
 /**
  * POST /api/users
  *
  * Return user details associated with the session, creates a new user if they don't exist
  */
-const POST = async (req: NextRequest): Promise<NextResponse> => {
+export async function POST(req: NextRequest): Promise<NextResponse> {
     try {
         const session = await getSession()
         if (!session) {
@@ -33,7 +33,7 @@ const POST = async (req: NextRequest): Promise<NextResponse> => {
  *
  * Change the name of the user
  */
-const PATCH = async (req: NextRequest): Promise<NextResponse> => {
+export async function PATCH(req: NextRequest): Promise<NextResponse> {
     try {
         const session = await getSession()
         if (!session) {
@@ -58,5 +58,3 @@ const PATCH = async (req: NextRequest): Promise<NextResponse> => {
         return NextResponse.json({ error: error.message || 'Error updating user' }, { status: 500 })
     }
 }
-
-export { POST, PATCH }

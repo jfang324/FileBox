@@ -1,7 +1,7 @@
+import { FileDocument } from '@/interfaces/FileDocument'
+import { UserDocument } from '@/interfaces/UserDocument'
 import { clsx, type ClassValue } from 'clsx'
 import { twMerge } from 'tailwind-merge'
-import { UserDocument } from '@/interfaces/UserDocument'
-import { FileDocument } from '@/interfaces/FileDocument'
 
 export function cn(...inputs: ClassValue[]) {
     return twMerge(clsx(inputs))
@@ -12,7 +12,7 @@ export function cn(...inputs: ClassValue[]) {
  *
  * @returns The user document
  */
-export const retrieveUserDetails = async (): Promise<UserDocument> => {
+export async function retrieveUserDetails(): Promise<UserDocument> {
     const response = await fetch('/api/users', {
         method: 'POST',
     })
@@ -34,12 +34,12 @@ export const retrieveUserDetails = async (): Promise<UserDocument> => {
  * @param setEmail - A function to set state for the email
  * @param userDetails - The user document
  */
-export const initializeUserDetails = (
+export function initializeUserDetails(
     setMongoId: (mongoId: string) => void,
     setName: (name: string) => void,
     setEmail: (email: string) => void,
     userDetails: UserDocument
-) => {
+) {
     if (userDetails) {
         setMongoId(userDetails._id as string)
         setName(userDetails.name || userDetails.email)
@@ -56,10 +56,10 @@ export const initializeUserDetails = (
  * @param activeSection - The active section of the user's dashboard
  * @returns An array of file documents + owner
  */
-export const retrieveFiles = async (
+export async function retrieveFiles(
     userId: string,
     activeSection: string
-): Promise<(FileDocument & { owner: string })[]> => {
+): Promise<(FileDocument & { owner: string })[]> {
     if (!userId || !activeSection) {
         throw new Error('Missing required parameters')
     }
@@ -83,7 +83,7 @@ export const retrieveFiles = async (
  * @param file - The file to upload
  * @returns The file document
  */
-export const uploadFile = async (file: File): Promise<FileDocument> => {
+export async function uploadFile(file: File): Promise<FileDocument> {
     if (!file) {
         throw new Error('Missing file')
     }
@@ -111,7 +111,7 @@ export const uploadFile = async (file: File): Promise<FileDocument> => {
  * @param fileId - The mongoId of the file
  * @returns The result from the delete operation
  */
-export const deleteFile = async (fileId: string) => {
+export async function deleteFile(fileId: string) {
     if (!fileId) {
         throw new Error('Missing fileId')
     }
@@ -136,7 +136,7 @@ export const deleteFile = async (fileId: string) => {
  * @param recipientEmail - The email of the recipient
  * @returns The share document
  */
-export const shareFile = async (fileId: string, recipientEmail: string) => {
+export async function shareFile(fileId: string, recipientEmail: string) {
     if (!fileId || !recipientEmail) {
         throw new Error('Missing required parameters')
     }
@@ -165,7 +165,7 @@ export const shareFile = async (fileId: string, recipientEmail: string) => {
  * @param recipientEmail - The email of the recipient
  * @returns The share document
  */
-export const unShareFile = async (fileId: string, recipientEmail: string) => {
+export async function unShareFile(fileId: string, recipientEmail: string) {
     if (!fileId || !recipientEmail) {
         throw new Error('Missing required parameters')
     }
@@ -193,7 +193,7 @@ export const unShareFile = async (fileId: string, recipientEmail: string) => {
  * @param name - The new name of the user
  * @returns The updated user document
  */
-export const changeUserName = async (name: string) => {
+export async function changeUserSettings(name: string) {
     if (!name) {
         throw new Error('Missing name')
     }
@@ -220,7 +220,7 @@ export const changeUserName = async (name: string) => {
  * @param fileId - The mongoId of the file
  * @returns The presigned URL
  */
-export const retrievePresignedUrl = async (fileId: string) => {
+export async function retrievePresignedUrl(fileId: string) {
     if (!fileId) {
         throw new Error('Missing fileId')
     }

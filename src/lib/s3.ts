@@ -22,13 +22,18 @@ const getS3Client = (): S3Client => {
         return cached.client
     }
 
-    cached.client = new S3Client({
-        region: bucketRegion,
-        credentials: {
-            accessKeyId: accessKey,
-            secretAccessKey: secretAccessKey,
-        },
-    })
+    try {
+        cached.client = new S3Client({
+            region: bucketRegion,
+            credentials: {
+                accessKeyId: accessKey,
+                secretAccessKey: secretAccessKey,
+            },
+        })
+    } catch (error) {
+        console.error('Error creating S3 client:', error)
+        throw new Error('Failed to create S3 client')
+    }
 
     return cached.client
 }

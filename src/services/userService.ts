@@ -1,15 +1,15 @@
-import connectToDb from '@/config/db'
 import { UserDocument } from '@/interfaces/UserDocument'
+import connectToDb from '@/lib/db'
 import User from '@/models/User'
 
 /**
  * Create a new user if they don't exist and return the user document
  *
  * @param authId - The authId of the user. This is user.sub from auth0
- * @param name - The name of the user
+ * @param email - The email of the user
  * @returns The user document
  */
-export const createIfNewUser = async (authId: string, email: string): Promise<UserDocument> => {
+export async function createIfNewUser(authId: string, email: string): Promise<UserDocument> {
     if (!email || !authId) {
         throw new Error('Missing required parameters')
     }
@@ -44,7 +44,7 @@ export const createIfNewUser = async (authId: string, email: string): Promise<Us
  * @param name - The new name of the user
  * @returns The updated user document
  */
-export const changeUserName = async (authId: string, name: string): Promise<UserDocument> => {
+export async function changeUserName(authId: string, name: string): Promise<UserDocument> {
     if (!authId || !name) {
         throw new Error('Missing required parameters')
     }
@@ -77,7 +77,7 @@ export const changeUserName = async (authId: string, name: string): Promise<User
  * @param authId - The authId of the user
  * @returns The user document
  */
-export const getUserByAuthId = async (authId: string): Promise<UserDocument> => {
+export async function getUserByAuthId(authId: string): Promise<UserDocument> {
     if (!authId) {
         throw new Error('Missing authId')
     }
@@ -102,7 +102,7 @@ export const getUserByAuthId = async (authId: string): Promise<UserDocument> => 
  * @param email - The email of the user
  * @returns The user document
  */
-export const getUserByEmail = async (email: string): Promise<UserDocument> => {
+export async function getUserByEmail(email: string): Promise<UserDocument> {
     if (!email) {
         throw new Error('Missing email')
     }

@@ -1,6 +1,6 @@
-import mongoose, { Schema } from 'mongoose'
 import { FileDocument } from '@/interfaces/FileDocument'
 import Share from '@/models/Share'
+import mongoose, { Schema } from 'mongoose'
 
 const fileSchema: Schema<FileDocument> = new Schema({
     name: {

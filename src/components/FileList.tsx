@@ -1,36 +1,28 @@
 'use client'
 
+import FileEntry from '@/components/FileEntry'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { Search, Trash2, ListCollapse } from 'lucide-react'
-import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet'
 import { FileDocument } from '@/interfaces/FileDocument'
-import FileEntry from '@/components/FileEntry'
-import LeftColumn from '@/components/LeftColumn'
+import { Menu, Search, Trash2 } from 'lucide-react'
 
 interface FileListProps {
-    activeSection: string
-    handleSectionChange: (section: 'my-files' | 'shared') => void
     searchTerm: string
     handleSearch: (event: React.ChangeEvent<HTMLInputElement>) => void
     fileTypeFilter: string
     handleFileTypeFilter: (type: string) => void
     fileTypes: string[]
     files: Array<FileDocument & { owner: string }>
-    selectedFiles: Set<string>
-    triggerUpload: () => void
-    triggerSettings: () => void
+    selectedFiles: string[]
     triggerShare: (fileId: string, fileName: string) => void
+    triggerMenu: () => void
     handleSelectFile: (id: string) => void
     handleDeleteSelected: () => void
     handleDownload: (id: string) => void
-    handleLogout: () => void
 }
 
 const FileList = ({
-    activeSection,
-    handleSectionChange,
     searchTerm,
     handleSearch,
     fileTypeFilter,
@@ -38,13 +30,11 @@ const FileList = ({
     fileTypes,
     files,
     selectedFiles,
-    triggerUpload,
-    triggerSettings,
     triggerShare,
+    triggerMenu,
     handleSelectFile,
     handleDeleteSelected,
     handleDownload,
-    handleLogout,
 }: FileListProps) => {
     return (
         <div className="flex-1 flex flex-col overflow-hidden">
@@ -77,25 +67,16 @@ const FileList = ({
                     </Select>
                 </div>
                 <div className="flex justify-between items-center">
-                    <Sheet>
-                        <SheetTrigger className="border border-black bg-blue-800 hover:bg-blue-900 text-white p-1 rounded">
-                            <ListCollapse size={22} />
-                        </SheetTrigger>
-                        <SheetContent side={'left'} className="bg-white w-full lg:w-1/4 border border-black p-0">
-                            <LeftColumn
-                                activeSection={activeSection}
-                                handleSectionChange={handleSectionChange}
-                                triggerUpload={triggerUpload}
-                                triggerSettings={triggerSettings}
-                                handleLogout={handleLogout}
-                            />
-                        </SheetContent>
-                    </Sheet>
+                    <div
+                        className="border border-black cursor-pointer bg-blue-800 hover:bg-blue-900 text-white p-1 rounded"
+                        onClick={triggerMenu}
+                    >
+                        <Menu size={20} />
+                    </div>
                     <Button
                         variant="destructive"
                         size="sm"
                         onClick={handleDeleteSelected}
-                        disabled={selectedFiles.size === 0 || activeSection !== 'my-files'}
                         className="border border-black bg-red-600 hover:bg-red-700 text-white rounded"
                     >
                         <Trash2 size={16} className="mr-2" />
@@ -113,7 +94,7 @@ const FileList = ({
                             extension={file.extension}
                             size={file.size}
                             owner={file.owner}
-                            isSelected={selectedFiles.has(file._id as string)}
+                            isSelected={selectedFiles.includes(file._id as string)}
                             triggerShare={triggerShare}
                             handleSelect={handleSelectFile}
                             handleDownload={handleDownload}

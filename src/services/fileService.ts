@@ -1,9 +1,9 @@
-import connectToDb from '@/config/db'
 import { FileDocument } from '@/interfaces/FileDocument'
+import connectToDb from '@/lib/db'
 import File from '@/models/File'
 
 /**
- * Create a new file document
+ * Create a new file document in the database
  *
  * @param name - The name of the file
  * @param extension - The file extension
@@ -11,12 +11,12 @@ import File from '@/models/File'
  * @param ownerId - The mongoId of the user who owns the file
  * @returns The file document
  */
-export const createFile = async (
+export async function createFile(
     name: string,
     extension: string,
     size: number,
     ownerId: string
-): Promise<FileDocument> => {
+): Promise<FileDocument> {
     if (!name || !extension || !size || size < 0 || !ownerId) {
         throw new Error('Invalid or missing required parameters')
     }
@@ -40,12 +40,12 @@ export const createFile = async (
 }
 
 /**
- * Deletes the file document with the given id
+ * Deletes the file document with the given id from the database
  *
  * @param fileId - The mongoId of the file
  * @returns The result from the delete operation
  */
-export const deleteFile = async (fileId: string) => {
+export async function deleteFile(fileId: string): Promise<FileDocument> {
     if (!fileId) {
         throw new Error('Missing fileId')
     }
@@ -68,7 +68,7 @@ export const deleteFile = async (fileId: string) => {
  * @param userId - The mongoId of the user
  * @returns - An array of file documents
  */
-export const getUserFiles = async (userId: string): Promise<(FileDocument & { owner: string })[]> => {
+export async function getUserFiles(userId: string): Promise<(FileDocument & { owner: string })[]> {
     if (!userId) {
         throw new Error('Missing userId')
     }
@@ -102,7 +102,7 @@ export const getUserFiles = async (userId: string): Promise<(FileDocument & { ow
  * @param fileId - The mongoId of the file
  * @returns The file document
  */
-export const getFileById = async (fileId: string): Promise<FileDocument> => {
+export async function getFileById(fileId: string): Promise<FileDocument> {
     if (!fileId) {
         throw new Error('Missing fileId')
     }

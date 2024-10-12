@@ -1,7 +1,7 @@
-import connectToDb from '@/config/db'
-import { ShareDocument } from '@/interfaces/ShareDocument'
-import Share from '@/models/Share'
 import { FileDocument } from '@/interfaces/FileDocument'
+import { ShareDocument } from '@/interfaces/ShareDocument'
+import connectToDb from '@/lib/db'
+import Share from '@/models/Share'
 
 /**
  * Create a new share between the file and the recipient if it doesn't exist and return the share document
@@ -10,7 +10,7 @@ import { FileDocument } from '@/interfaces/FileDocument'
  * @param recipientId - The mongoId of the recipient
  * @returns The share document
  */
-export const createShare = async (fileId: string, recipientId: string): Promise<ShareDocument> => {
+export async function createShare(fileId: string, recipientId: string): Promise<ShareDocument> {
     if (!fileId || !recipientId) {
         throw new Error('Missing required parameters')
     }
@@ -46,7 +46,7 @@ export const createShare = async (fileId: string, recipientId: string): Promise<
  * @param recipientId - The mongoId of the recipient
  * @returns The share document
  */
-export const deleteShare = async (fileId: string, recipientId: string): Promise<ShareDocument> => {
+export async function deleteShare(fileId: string, recipientId: string): Promise<ShareDocument> {
     if (!fileId || !recipientId) {
         throw new Error('Missing required parameters')
     }
@@ -72,7 +72,7 @@ export const deleteShare = async (fileId: string, recipientId: string): Promise<
  * @param userId - The mongoId of the user
  * @returns An array of file documents + owner
  */
-export const getSharedFiles = async (userId: string): Promise<(FileDocument & { owner: string })[]> => {
+export async function getSharedFiles(userId: string): Promise<(FileDocument & { owner: string })[]> {
     if (!userId) {
         throw new Error('Missing userId')
     }
@@ -108,7 +108,7 @@ export const getSharedFiles = async (userId: string): Promise<(FileDocument & { 
  * @param fileId - The mongoId of the file
  * @returns True if the user has the file shared with them, false otherwise
  */
-export const isShared = async (userId: string, fileId: string): Promise<boolean> => {
+export async function isShared(userId: string, fileId: string): Promise<boolean> {
     if (!userId || !fileId) {
         throw new Error('Missing required parameters')
     }

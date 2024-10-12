@@ -1,27 +1,52 @@
-import React from 'react'
+import { Button } from '@/components/ui/button'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
-import { Label } from '@/components/ui/label'
-import { Button } from './ui/button'
 import { Input } from '@/components/ui/input'
+import { uploadFile } from '@/lib/utils'
 import { File } from 'lucide-react'
+import React, { useRef, useState } from 'react'
 
+/**
+ * Interface for the upload dialog component
+ *
+ * @param triggerRef - Ref to trigger dialog
+ * @param onSuccess - Function to call when upload is successful. Should update file list
+ */
 interface UploadDialogProps {
-    userMongoId: string
-    file: File | undefined
-    handleFileChange: (event: React.ChangeEvent<HTMLInputElement>) => void
-    handleUpload: (event: React.MouseEvent<HTMLButtonElement>) => Promise<void>
-    inputRef: React.RefObject<HTMLInputElement>
     triggerRef: React.RefObject<HTMLButtonElement>
+    onSuccess: () => void
 }
 
-const UploadDialog = ({
-    userMongoId,
-    file,
-    handleFileChange,
-    handleUpload,
-    inputRef,
-    triggerRef,
-}: UploadDialogProps) => {
+const UploadDialog = ({ triggerRef, onSuccess }: UploadDialogProps) => {
+    const [file, setFile] = useState<File | undefined>()
+    const inputRef = useRef<HTMLInputElement>(null)
+
+    // Changes the file if it is valid
+    const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+        const selectedFile = event.target.files?.[0]
+        if (selectedFile && selectedFile.size > 0 && selectedFile.size < 1024 * 1024 * 10) {
+            setFile(selectedFile)
+        } else {
+            alert('File size must be less than 10 MB')
+        }
+    }
+
+    // Uploads the file
+    const handleUpload = async () => {
+        if (file) {
+            try {
+                const uploadResult = await uploadFile(file)
+                if (uploadResult) {
+                    alert(`${uploadResult.name}.${uploadResult.extension} uploaded successfully`)
+                    onSuccess()
+                }
+            } catch (error) {
+                alert(error)
+            }
+        } else {
+            alert('File not selected')
+        }
+    }
+
     return (
         <Dialog>
             <DialogTrigger asChild>
@@ -35,21 +60,6 @@ const UploadDialog = ({
                 </DialogHeader>
                 <form className="space-y-4">
                     <div className="space-y-2">
-                        <Label htmlFor="userId" className="text-sm font-medium">
-                            User ID
-                        </Label>
-                        <Input
-                            id="userId"
-                            type="text"
-                            disabled={true}
-                            value={userMongoId}
-                            className="bg-gray-100 text-gray-600 rounded"
-                        />
-                    </div>
-                    <div className="space-y-2">
-                        <Label htmlFor="file" className="text-sm font-medium">
-                            File
-                        </Label>
                         <div className="flex items-center space-x-2">
                             <Button
                                 type="button"

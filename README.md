@@ -1,6 +1,6 @@
 ## About The Project
 
-A full stack web application that lets you manage and share files on your home network. Ideally this applications should be run on a Raspberry Pi or similar device but it can also be run on your PC. Here is a useful guide to expose localhost to the network: https://www.youtube.com/watch?v=uRYHX4EwYYA.
+A full stack web application that lets you manage and share files on your home network. Ideally this applications should be run on a Raspberry Pi or similar device but it can also be run on your PC. Here is a useful guide to expose localhost to the network: https://www.youtube.com/watch?v=uRYHX4EwYYA
 
 ## Getting Started
 
@@ -100,7 +100,7 @@ _Account settings pop-up_
 
 Jeffery Fang - [jefferyfang324@gmail.com](mailto:jefferyfang324@gmail.com)
 
-## Tools & Techonologies
+## Tools & Technologies
 
 -   Next.js
 -   React
