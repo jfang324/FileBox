@@ -11,7 +11,7 @@ import {
     retrieveFiles,
     retrievePresignedUrl,
     retrieveUserDetails,
-} from '@/lib/utils'
+} from '@/lib/clientUtils'
 import { useUser } from '@auth0/nextjs-auth0/client'
 import { useEffect, useMemo, useRef, useState } from 'react'
 

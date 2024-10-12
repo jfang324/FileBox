@@ -1,7 +1,7 @@
-import { deleteFile, getFileById } from '@/services/fileService'
+import { getUserFile } from '@/lib/apiUtils'
+import { deleteFile } from '@/services/fileService'
 import { deleteS3File, getS3PresignedUrl } from '@/services/s3Service'
 import { isShared } from '@/services/shareService'
-import { getUserByAuthId } from '@/services/userService'
 import { getSession } from '@auth0/nextjs-auth0'
 import { NextRequest, NextResponse } from 'next/server'
 
@@ -13,17 +13,9 @@ import { NextRequest, NextResponse } from 'next/server'
 export async function GET(req: NextRequest, { params }: { params: { fileId: string } }): Promise<NextResponse> {
     try {
         const session = await getSession()
-        if (!session) {
-            return NextResponse.json({ error: 'Not authenticated' }, { status: 401 })
-        }
+        const { user, file } = await getUserFile(session, params.fileId)
 
-        const user = await getUserByAuthId(session.user.sub)
-        const file = await getFileById(params.fileId)
-        if (!user || !user._id || !file || !file._id) {
-            return NextResponse.json({ error: `${!user ? 'User' : 'File'} not found` }, { status: 404 })
-        }
-
-        const userMongoId = user._id.toString()
+        const userMongoId = user._id!.toString()
         const fileOwnerMongoId = file.ownerId.toString()
         const isSharedResult = await isShared(userMongoId, params.fileId)
 
@@ -42,7 +34,7 @@ export async function GET(req: NextRequest, { params }: { params: { fileId: stri
         return NextResponse.json(signedUrl, { status: 200 })
     } catch (error: any) {
         console.error('Error getting file:', error.message || error)
-        return NextResponse.json({ error: error.message || 'Error getting file' }, { status: 500 })
+        return NextResponse.json({ error: error.message || 'Error getting file' }, { status: error.status || 500 })
     }
 }
 
@@ -54,17 +46,9 @@ export async function GET(req: NextRequest, { params }: { params: { fileId: stri
 export async function DELETE(req: NextRequest, { params }: { params: { fileId: string } }): Promise<NextResponse> {
     try {
         const session = await getSession()
-        if (!session) {
-            return NextResponse.json({ error: 'Not authenticated' }, { status: 401 })
-        }
+        const { user, file } = await getUserFile(session, params.fileId)
 
-        const user = await getUserByAuthId(session.user.sub)
-        const file = await getFileById(params.fileId)
-        if (!user || !user._id || !file || !file._id) {
-            return NextResponse.json({ error: `${!user ? 'User' : 'File'} not found` }, { status: 404 })
-        }
-
-        const userMongoId = user._id.toString()
+        const userMongoId = user._id!.toString()
         const fileOwnerMongoId = file.ownerId.toString()
 
         if (fileOwnerMongoId !== userMongoId) {
@@ -74,7 +58,7 @@ export async function DELETE(req: NextRequest, { params }: { params: { fileId: s
             )
         }
 
-        const deleteResult = await deleteFile(file._id.toString())
+        const deleteResult = await deleteFile(file._id!.toString())
         if (!deleteResult) {
             return NextResponse.json({ error: 'Failed to delete file from database' }, { status: 500 })
         }
@@ -90,6 +74,6 @@ export async function DELETE(req: NextRequest, { params }: { params: { fileId: s
         )
     } catch (error: any) {
         console.error('Error deleting file:', error.message || error)
-        return NextResponse.json({ error: error.message || 'Error deleting file' }, { status: 500 })
+        return NextResponse.json({ error: error.message || 'Error deleting file' }, { status: error.status || 500 })
     }
 }

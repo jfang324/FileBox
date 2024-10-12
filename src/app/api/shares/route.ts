@@ -1,6 +1,5 @@
-import { getFileById } from '@/services/fileService'
+import { getUserFileRecipient } from '@/lib/apiUtils'
 import { createShare, deleteShare } from '@/services/shareService'
-import { getUserByAuthId, getUserByEmail } from '@/services/userService'
 import { getSession } from '@auth0/nextjs-auth0'
 import { NextRequest, NextResponse } from 'next/server'
 
@@ -12,27 +11,10 @@ import { NextRequest, NextResponse } from 'next/server'
 export async function POST(req: NextRequest): Promise<NextResponse> {
     try {
         const session = await getSession()
-        if (!session) {
-            return NextResponse.json({ error: 'Not authenticated' }, { status: 401 })
-        }
-
         const requestBody = await req.json()
-        if (!requestBody.fileId || !requestBody.recipientEmail) {
-            return NextResponse.json({ error: 'Missing required fields' }, { status: 400 })
-        }
+        const { user, file, recipient } = await getUserFileRecipient(session, requestBody)
 
-        const user = await getUserByAuthId(session.user.sub)
-        const file = await getFileById(requestBody.fileId)
-        if (!user || !user._id || !file || !file._id) {
-            return NextResponse.json({ error: `${!user ? 'User' : 'File'} not found` }, { status: 404 })
-        }
-
-        const recipient = await getUserByEmail(requestBody.recipientEmail)
-        if (!recipient || !recipient._id) {
-            return NextResponse.json({ error: 'Recipient not found' }, { status: 404 })
-        }
-
-        const userMongoId = user._id.toString()
+        const userMongoId = user._id!.toString()
         const fileOwnerMongoId = file.ownerId.toString()
 
         if (fileOwnerMongoId !== userMongoId) {
@@ -42,12 +24,12 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
             )
         }
 
-        const share = await createShare(file._id.toString(), recipient._id.toString())
+        const share = await createShare(file._id!.toString(), recipient._id!.toString())
 
         return NextResponse.json(share, { status: 200 })
     } catch (error: any) {
         console.error('Error creating share:', error.message || error)
-        return NextResponse.json({ error: error.message || 'Error creating share' }, { status: 500 })
+        return NextResponse.json({ error: error.message || 'Error creating share' }, { status: error.status || 500 })
     }
 }
 
@@ -59,27 +41,10 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
 export async function DELETE(req: NextRequest): Promise<NextResponse> {
     try {
         const session = await getSession()
-        if (!session) {
-            return NextResponse.json({ error: 'Not authenticated' }, { status: 401 })
-        }
-
         const requestBody = await req.json()
-        if (!requestBody.fileId || !requestBody.recipientEmail) {
-            return NextResponse.json({ error: 'Missing required fields' }, { status: 400 })
-        }
+        const { user, file, recipient } = await getUserFileRecipient(session, requestBody)
 
-        const user = await getUserByAuthId(session.user.sub)
-        const file = await getFileById(requestBody.fileId)
-        if (!user || !user._id || !file || !file._id) {
-            return NextResponse.json({ error: `${!user ? 'User' : 'File'} not found` }, { status: 404 })
-        }
-
-        const recipient = await getUserByEmail(requestBody.recipientEmail)
-        if (!recipient || !recipient._id) {
-            return NextResponse.json({ error: 'Recipient not found' }, { status: 404 })
-        }
-
-        const userMongoId = user._id.toString()
+        const userMongoId = user._id!.toString()
         const fileOwnerMongoId = file.ownerId.toString()
 
         if (fileOwnerMongoId !== userMongoId) {
@@ -89,11 +54,11 @@ export async function DELETE(req: NextRequest): Promise<NextResponse> {
             )
         }
 
-        const share = await deleteShare(file._id.toString(), recipient._id.toString())
+        const share = await deleteShare(file._id!.toString(), recipient._id!.toString())
 
         return NextResponse.json(share, { status: 200 })
     } catch (error: any) {
         console.error('Error deleting share:', error.message || error)
-        return NextResponse.json({ error: error.message || 'Error deleting share' }, { status: 500 })
+        return NextResponse.json({ error: error.message || 'Error deleting share' }, { status: error.status || 500 })
     }
 }
