@@ -3,6 +3,16 @@ import { Button } from '@/components/ui/button'
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet'
 import { File, FolderOpen, LogOut, Settings, Share2, Upload } from 'lucide-react'
 
+/**
+ *  Menu component props
+ *
+ * @param activeSection - current active section
+ * @param triggerRef - ref for triggering the menu
+ * @param triggerUpload - function to trigger file upload dialog
+ * @param triggerSettings - function to trigger settings dialog
+ * @param handleSectionChange - function to handle section change
+ * @param handleLogout - function to handle user logout
+ */
 interface MenuProps {
     activeSection: string
     triggerRef: React.RefObject<HTMLButtonElement>

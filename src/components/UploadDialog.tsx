@@ -1,3 +1,4 @@
+'use client'
 import { Button } from '@/components/ui/button'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
@@ -6,7 +7,7 @@ import { File } from 'lucide-react'
 import React, { useRef, useState } from 'react'
 
 /**
- * Interface for the upload dialog component
+ * Upload dialog component props
  *
  * @param triggerRef - Ref to trigger dialog
  * @param onSuccess - Function to call when upload is successful. Should update file list
@@ -36,7 +37,7 @@ const UploadDialog = ({ triggerRef, onSuccess }: UploadDialogProps) => {
             try {
                 const uploadResult = await uploadFile(file)
                 if (uploadResult) {
-                    alert(`${uploadResult.name}.${uploadResult.extension} uploaded successfully`)
+                    alert(`${uploadResult.name}.${uploadResult.extension} uploaded`)
                     onSuccess()
                 }
             } catch (error) {

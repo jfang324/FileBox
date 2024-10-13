@@ -7,6 +7,14 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { shareFile, unShareFile } from '@/lib/clientUtils'
 import { Mail, Share2 } from 'lucide-react'
 
+/**
+ *  Share dialog component props
+ *
+ * @param fileId - file id
+ * @param fileName - file name
+ * @param userEmail - user email
+ * @param triggerRef - ref for triggering the dialog
+ */
 interface ShareDialogProps {
     fileId: string
     fileName: string

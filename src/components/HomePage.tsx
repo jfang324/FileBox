@@ -133,7 +133,7 @@ const HomePage = () => {
                 alert(error)
             }
         } else {
-            alert(`Error deleting files. ${selectedFiles.length} files selected. userMongoId: ${userMongoId}`)
+            alert(`Error deleting files \n${selectedFiles.length} files selected \nuserMongoId: ${userMongoId}`)
         }
     }
 

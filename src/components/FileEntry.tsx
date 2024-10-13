@@ -1,9 +1,21 @@
 'use client'
-
 import { Button } from '@/components/ui/button'
 import { Checkbox } from '@/components/ui/checkbox'
 import { Download, Share2 } from 'lucide-react'
 
+/**
+ * File entry component props
+ *
+ * @param id - file id (mongodb _id)
+ * @param name - file name
+ * @param extension - file extension
+ * @param size - file size
+ * @param owner - file owner
+ * @param isSelected - whether the file is selected
+ * @param triggerShare - function to trigger file sharing dialog
+ * @param handleSelect - function to handle file selection
+ * @param handleDownload - function to handle file download
+ */
 interface FileEntryProps {
     id: string
     name: string

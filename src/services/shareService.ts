@@ -83,6 +83,10 @@ export async function getSharedFiles(userId: string): Promise<(FileDocument & { 
         const shares = await Share.find({ userId: userId }).populate({
             path: 'fileId',
             select: 'name extension size ownerId',
+            populate: {
+                path: 'ownerId',
+                select: 'name email',
+            },
         })
 
         const sharedFiles = shares.map((share) => {
@@ -91,6 +95,7 @@ export async function getSharedFiles(userId: string): Promise<(FileDocument & { 
             return {
                 ...file._doc,
                 owner: (file.ownerId.name !== undefined ? file.ownerId.name : file.ownerId.email) as string,
+                ownerId: file.ownerId._id,
             }
         })
 

@@ -1,5 +1,4 @@
 'use client'
-
 import FileEntry from '@/components/FileEntry'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -7,6 +6,22 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { FileDocument } from '@/interfaces/FileDocument'
 import { Menu, Search, Trash2 } from 'lucide-react'
 
+/**
+ *  File list component props
+ *
+ * @param searchTerm - current search term
+ * @param handleSearch - function to handle search
+ * @param fileTypeFilter - current file type filter
+ * @param handleFileTypeFilter - function to handle file type filter
+ * @param fileTypes - file types
+ * @param files - current files
+ * @param selectedFiles - selected files
+ * @param triggerShare - function to trigger file sharing dialog
+ * @param triggerMenu - function to trigger menu
+ * @param handleSelectFile - function to handle file selection
+ * @param handleDeleteSelected - function to handle delete selected files
+ * @param handleDownload - function to handle file download
+ */
 interface FileListProps {
     searchTerm: string
     handleSearch: (event: React.ChangeEvent<HTMLInputElement>) => void

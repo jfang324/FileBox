@@ -1,3 +1,4 @@
+'use client'
 import { Button } from '@/components/ui/button'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
@@ -5,6 +6,15 @@ import { Label } from '@/components/ui/label'
 import { changeUserSettings } from '@/lib/clientUtils'
 import { IdCard, Mail, User } from 'lucide-react'
 
+/**
+ *  Settings dialog component props
+ *
+ * @param authId - user auth id
+ * @param userEmail - user email
+ * @param userName - user name
+ * @param triggerRef - ref for triggering the dialog
+ * @param onSuccess - function to run on successful submission, should update files
+ */
 interface SettingsDialogProps {
     authId: string
     userEmail: string
@@ -13,13 +23,14 @@ interface SettingsDialogProps {
     onSuccess: () => void
 }
 
-const SettingsDialog = ({ authId, userName, userEmail, triggerRef, onSuccess }: SettingsDialogProps) => {
+const SettingsDialog = ({ authId, userEmail, userName, triggerRef, onSuccess }: SettingsDialogProps) => {
     // Change the accounts settings
     const handleChangeSettings = async (name: string) => {
         if (name) {
             try {
                 const userDetails = await changeUserSettings(name)
                 if (userDetails) {
+                    alert(`name changed from ${userName} to ${name}`)
                     onSuccess()
                 }
             } catch (error) {

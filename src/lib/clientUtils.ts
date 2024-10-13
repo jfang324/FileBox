@@ -8,7 +8,7 @@ export function cn(...inputs: ClassValue[]) {
 }
 
 /**
- * Fetches the user details and returns the user document if successful
+ * Retrieves the user details and returns the user document if successful
  *
  * @returns The user document
  */
@@ -22,30 +22,35 @@ export async function retrieveUserDetails(): Promise<UserDocument> {
 
         return userDetails
     } else {
-        throw new Error(`Error fetching user details. Status: ${response.status}`)
+        const errorBody = await response.json()
+        throw new Error(`Error fetching user details \n${errorBody.error} \nStatus Code: ${response.status}`)
     }
 }
 
 /**
  * Initializes the user details
  *
- * @param setMongoId - A function to set state for the mongoId
+ * @param setUserMongoId - A function to set state for the mongoId
  * @param setName - A function to set state for the name
  * @param setEmail - A function to set state for the email
  * @param userDetails - The user document
  */
 export function initializeUserDetails(
-    setMongoId: (mongoId: string) => void,
+    setUserMongoId: (mongoId: string) => void,
     setName: (name: string) => void,
     setEmail: (email: string) => void,
     userDetails: UserDocument
 ) {
-    if (userDetails) {
-        setMongoId(userDetails._id as string)
+    if (!userDetails) {
+        throw new Error('Missing user details')
+    }
+
+    try {
+        setUserMongoId(userDetails._id as string)
         setName(userDetails.name || userDetails.email)
         setEmail(userDetails.email)
-    } else {
-        throw new Error('Error initializing user details')
+    } catch (error) {
+        throw new Error(`Error initializing user details \n${error}`)
     }
 }
 
@@ -73,7 +78,8 @@ export async function retrieveFiles(
 
         return userFiles
     } else {
-        throw new Error(`Error fetching user files. Status: ${response.status}`)
+        const errorBody = await response.json()
+        throw new Error(`Error fetching user files \n${errorBody.error} \nStatus Code: ${response.status}`)
     }
 }
 
@@ -101,7 +107,8 @@ export async function uploadFile(file: File): Promise<FileDocument> {
 
         return savedFile
     } else {
-        throw new Error(`Error uploading file. Status: ${response.status}`)
+        const errorBody = await response.json()
+        throw new Error(`Error uploading file \n${errorBody.error} \nStatus Code: ${response.status}`)
     }
 }
 
@@ -125,7 +132,8 @@ export async function deleteFile(fileId: string) {
 
         return deletedFile
     } else {
-        throw new Error(`Error deleting file. Status: ${response.status}`)
+        const errorBody = await response.json()
+        throw new Error(`Error deleting file \n${errorBody.error} \nStatus Code: ${response.status}`)
     }
 }
 
@@ -154,7 +162,8 @@ export async function shareFile(fileId: string, recipientEmail: string) {
 
         return share
     } else {
-        throw new Error(`Error sharing file. Status: ${response.status}`)
+        const errorBody = await response.json()
+        throw new Error(`Error sharing file \n${errorBody.error} \nStatus Code: ${response.status}`)
     }
 }
 
@@ -183,7 +192,8 @@ export async function unShareFile(fileId: string, recipientEmail: string) {
 
         return share
     } else {
-        throw new Error(`Error unsharing file. Status: ${response.status}`)
+        const errorBody = await response.json()
+        throw new Error(`Error sharing file \n${errorBody.error} \nStatus Code: ${response.status}`)
     }
 }
 
@@ -210,7 +220,8 @@ export async function changeUserSettings(name: string) {
 
         return updatedUser
     } else {
-        throw new Error(`Error changing user name. Status: ${response.status}`)
+        const errorBody = await response.json()
+        throw new Error(`Error changing user name \n${errorBody.error} \nStatus Code: ${response.status}`)
     }
 }
 
@@ -234,6 +245,7 @@ export async function retrievePresignedUrl(fileId: string) {
 
         return presignedUrl
     } else {
-        throw new Error(`Error retrieving presigned URL. Status: ${response.status}`)
+        const errorBody = await response.json()
+        throw new Error(`Error retrieving presigned URL \n${errorBody.error} \nStatus Code: ${response.status}`)
     }
 }
