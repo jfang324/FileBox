@@ -12,7 +12,7 @@ To use this application, you will need accounts for the following services:
 -   Amazon S3
 -   Auth0
 
-## Installation
+### Installation
 
 To install the application locally, run the following commands:
 
@@ -98,7 +98,7 @@ _Account settings pop-up_
 
 ## Known Issues
 
--  For some file types, the file will be downloaded with no extension
+-   For some file types, the file will be downloaded with no extension
 
 ## Contact
 
