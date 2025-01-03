@@ -1,7 +1,12 @@
 import { FileDocument } from '@/interfaces/FileDocument'
 import { UserDocument } from '@/interfaces/UserDocument'
 import { clsx, type ClassValue } from 'clsx'
+import { report } from 'process'
 import { twMerge } from 'tailwind-merge'
+
+const VT_UPLOAD_URL = process.env.NEXT_PUBLIC_VIRUS_TOTAL_UPLOAD_URL || ''
+const VT_REPORT_URL = process.env.NEXT_PUBLIC_VIRUS_TOTAL_REPORT_URL || ''
+const VT_API_KEY = process.env.NEXT_PUBLIC_VIRUS_TOTAL_API_KEY || ''
 
 export function cn(...inputs: ClassValue[]) {
     return twMerge(clsx(inputs))
@@ -109,6 +114,98 @@ export async function uploadFile(file: File): Promise<FileDocument> {
     } else {
         const errorBody = await response.json()
         throw new Error(`Error uploading file \n${errorBody.error} \nStatus Code: ${response.status}`)
+    }
+}
+
+/**
+ * Scans a file with VirusTotal
+ *
+ * @param file - The file to scan
+ * @returns
+ */
+export async function scanFile(file: File): Promise<{
+    complete: boolean
+    fileName: string
+    data: { malicious: number; suspicious: number; undetected: number }
+}> {
+    if (!file) {
+        throw new Error('Missing file')
+    }
+
+    const formData = new FormData()
+    formData.append('file', await new Response(file.stream()).blob(), file.name)
+
+    const uploadURL = VT_UPLOAD_URL
+    const uploadOptions = {
+        method: 'POST',
+        headers: {
+            accept: 'application/json',
+            'x-apikey': VT_API_KEY,
+        },
+        body: formData,
+    }
+
+    const uploadResponse = await fetch(uploadURL, uploadOptions)
+
+    if (uploadResponse.status !== 200) {
+        const errorBody = await uploadResponse.json()
+        throw new Error(`Error uploading file \n${errorBody.error} \nStatus Code: ${uploadResponse.status}`)
+    }
+
+    const uploadResponseData = await uploadResponse.json()
+    const file_id = uploadResponseData.data.id
+
+    const report_url = `${VT_REPORT_URL}/${file_id}`
+    const report_options = {
+        method: 'GET',
+        headers: {
+            accept: 'application/json',
+            'x-apikey': VT_API_KEY,
+        },
+    }
+    const maxRetries = 10
+    const retryDelay = 4000
+
+    for (let attempt = 0; attempt < maxRetries; attempt++) {
+        const reportResponse = await fetch(report_url, report_options)
+
+        if (reportResponse.status === 200) {
+            const reportResponseData = await reportResponse.json()
+
+            if (reportResponseData.data.attributes.status === 'completed') {
+                const reportStats = reportResponseData.data.attributes.stats
+
+                return {
+                    complete: true,
+                    fileName: file.name,
+                    data: {
+                        malicious: reportStats.malicious,
+                        suspicious: reportStats.suspicious,
+                        undetected: reportStats.undetected,
+                    },
+                }
+            } else {
+                console.log(
+                    `report not ready yet, attempt ${attempt + 1} of ${maxRetries}, waiting ${
+                        (retryDelay * (attempt + 1)) / 1000
+                    }s`
+                )
+                await new Promise((resolve) => setTimeout(resolve, retryDelay * (attempt + 1)))
+            }
+        } else {
+            const errorBody = await reportResponse.json()
+            throw new Error(`Error uploading file \n${errorBody.error} \nStatus Code: ${reportResponse.status}`)
+        }
+    }
+
+    return {
+        complete: false,
+        fileName: file.name,
+        data: {
+            malicious: 0,
+            suspicious: 0,
+            undetected: 0,
+        },
     }
 }
 

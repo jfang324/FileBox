@@ -54,6 +54,11 @@ SECRET_ACCESS_KEY = <bucket secret access key>
 DB_USERNAME = <database username>
 DB_PASSWORD = <database password>
 DATABASE_URL = <url provided after creating and choosing to programatiically connect>
+
+//use your virustotal api key
+NEXT_PUBLIC_VIRUS_TOTAL_API_KEY = <virustotal api key>
+NEXT_PUBLIC_VIRUS_TOTAL_UPLOAD_URL = 'https://www.virustotal.com/api/v3/files'
+NEXT_PUBLIC_VIRUS_TOTAL_REPORT_URL = 'https://www.virustotal.com/api/v3/analyses'
 ```
 
 5. Start the application:

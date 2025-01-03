@@ -2,7 +2,7 @@
 import { Button } from '@/components/ui/button'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
-import { uploadFile } from '@/lib/clientUtils'
+import { scanFile, uploadFile } from '@/lib/clientUtils'
 import { File } from 'lucide-react'
 import React, { useRef, useState } from 'react'
 
@@ -48,6 +48,27 @@ const UploadDialog = ({ triggerRef, onSuccess }: UploadDialogProps) => {
         }
     }
 
+    // Scans the file
+    const handleScan = async () => {
+        if (file) {
+            try {
+                const scanResult = await scanFile(file)
+
+                if (scanResult.complete) {
+                    alert(
+                        `VirusTotal scan complete for [${scanResult.fileName}] \nMalicious: ${scanResult.data.malicious} \nSuspicious: ${scanResult.data.suspicious} \nUndetected: ${scanResult.data.undetected}`
+                    )
+                } else {
+                    alert(`VirusTotal scan for [${scanResult.fileName}] not complete yet`)
+                }
+            } catch (error) {
+                alert(error)
+            }
+        } else {
+            alert('File not selected')
+        }
+    }
+
     return (
         <Dialog>
             <DialogTrigger asChild>
@@ -76,13 +97,22 @@ const UploadDialog = ({ triggerRef, onSuccess }: UploadDialogProps) => {
                         </div>
                         <Input id="file" type="file" ref={inputRef} className="hidden" onChange={handleFileChange} />
                     </div>
-                    <Button
-                        type="button"
-                        className="w-full bg-blue-600 text-white hover:bg-blue-700 rounded"
-                        onClick={handleUpload}
-                    >
-                        Upload
-                    </Button>
+                    <div className="flex flex-col gap-2">
+                        <Button
+                            type="button"
+                            className="w-full bg-blue-600 text-white hover:bg-blue-700 rounded"
+                            onClick={handleUpload}
+                        >
+                            Upload
+                        </Button>
+                        <Button
+                            type="button"
+                            className="w-full bg-blue-600 text-white hover:bg-blue-700 rounded"
+                            onClick={handleScan}
+                        >
+                            Scan for Viruses
+                        </Button>
+                    </div>
                 </form>
             </DialogContent>
         </Dialog>
