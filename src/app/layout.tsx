@@ -1,3 +1,4 @@
+import { Toaster } from '@/components/ui/toaster'
 import { UserProvider } from '@auth0/nextjs-auth0/client'
 import type { Metadata } from 'next'
 import localFont from 'next/font/local'
@@ -27,7 +28,10 @@ export default function RootLayout({
     return (
         <html lang="en">
             <UserProvider>
-                <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>{children}</body>
+                <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+                    {children}
+                    <Toaster />
+                </body>
             </UserProvider>
         </html>
     )

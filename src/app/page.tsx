@@ -1,6 +1,8 @@
 'use client'
-import HomePage from '@/components/HomePage'
 import { useUser } from '@auth0/nextjs-auth0/client'
+import dynamic from 'next/dynamic'
+
+const HomePage = dynamic(() => import('@/components/HomePage').then((mod) => mod.default))
 
 export default function Home() {
     const { user, error, isLoading } = useUser()

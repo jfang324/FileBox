@@ -3,6 +3,7 @@ import { Button } from '@/components/ui/button'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import { useToast } from '@/hooks/use-toast'
 import { changeUserSettings } from '@/lib/clientUtils'
 import { IdCard, Mail, User } from 'lucide-react'
 
@@ -25,16 +26,17 @@ interface SettingsDialogProps {
 
 const SettingsDialog = ({ authId, userEmail, userName, triggerRef, onSuccess }: SettingsDialogProps) => {
     // Change the accounts settings
+    const { toast } = useToast()
     const handleChangeSettings = async (name: string) => {
         if (name) {
             try {
                 const userDetails = await changeUserSettings(name)
                 if (userDetails) {
-                    alert(`name changed from ${userName} to ${name}`)
+                    toast({ title: 'Success', description: `Account settings updated` })
                     onSuccess()
                 }
             } catch (error) {
-                alert(error)
+                toast({ title: 'Error', description: `${error}` })
             }
         }
     }

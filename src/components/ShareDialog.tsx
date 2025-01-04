@@ -4,6 +4,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import { useToast } from '@/hooks/use-toast'
 import { shareFile, unShareFile } from '@/lib/clientUtils'
 import { Mail, Share2 } from 'lucide-react'
 
@@ -23,24 +24,26 @@ interface ShareDialogProps {
 }
 
 const ShareDialog = ({ fileId, fileName, userEmail, triggerRef }: ShareDialogProps) => {
+    const { toast } = useToast()
+
     // Shares the file with the recipient
     const handleShare = async (fileId: string, recipientEmail: string, action: 'share' | 'unshare') => {
         if (fileId && recipientEmail) {
             if (recipientEmail === userEmail) {
-                alert('You cannot share a file with yourself')
+                toast({ title: 'Error', description: 'You cannot share a file with yourself' })
             } else if (action === 'share') {
                 try {
                     await shareFile(fileId, recipientEmail)
-                    alert(`${fileName} shared with ${recipientEmail}`)
+                    toast({ title: 'Success', description: `${fileName} shared with ${recipientEmail}` })
                 } catch (error) {
-                    alert(error)
+                    toast({ title: 'Error', description: `${error}` })
                 }
             } else {
                 try {
                     await unShareFile(fileId, recipientEmail)
-                    alert(`${fileName} unshared with ${recipientEmail}`)
+                    toast({ title: 'Success', description: `${fileName} unshared with ${recipientEmail}` })
                 } catch (error) {
-                    alert(error)
+                    toast({ title: 'Error', description: `${error}` })
                 }
             }
         }

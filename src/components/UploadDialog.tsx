@@ -2,6 +2,7 @@
 import { Button } from '@/components/ui/button'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
+import { useToast } from '@/hooks/use-toast'
 import { scanFile, uploadFile } from '@/lib/clientUtils'
 import { File } from 'lucide-react'
 import React, { useRef, useState } from 'react'
@@ -19,7 +20,10 @@ interface UploadDialogProps {
 
 const UploadDialog = ({ triggerRef, onSuccess }: UploadDialogProps) => {
     const [file, setFile] = useState<File | undefined>()
+    const [isUploading, setIsUploading] = useState<boolean>(false)
+    const [isScanning, setIsScanning] = useState<boolean>(false)
     const inputRef = useRef<HTMLInputElement>(null)
+    const { toast } = useToast()
 
     // Changes the file if it is valid
     const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -27,7 +31,7 @@ const UploadDialog = ({ triggerRef, onSuccess }: UploadDialogProps) => {
         if (selectedFile && selectedFile.size > 0 && selectedFile.size < 1024 * 1024 * 10) {
             setFile(selectedFile)
         } else {
-            alert('File size must be less than 10 MB')
+            toast({ title: 'Error', description: 'File size must be less than 10 MB' })
         }
     }
 
@@ -35,16 +39,19 @@ const UploadDialog = ({ triggerRef, onSuccess }: UploadDialogProps) => {
     const handleUpload = async () => {
         if (file) {
             try {
+                setIsUploading(true)
                 const uploadResult = await uploadFile(file)
+                setIsUploading(false)
+
                 if (uploadResult) {
-                    alert(`${uploadResult.name}.${uploadResult.extension} uploaded`)
+                    toast({ title: 'Success', description: `${uploadResult.name}.${uploadResult.extension} uploaded` })
                     onSuccess()
                 }
             } catch (error) {
-                alert(error)
+                toast({ title: 'Error', description: `${error}` })
             }
         } else {
-            alert('File not selected')
+            toast({ title: 'Error', description: 'File not selected' })
         }
     }
 
@@ -52,20 +59,26 @@ const UploadDialog = ({ triggerRef, onSuccess }: UploadDialogProps) => {
     const handleScan = async () => {
         if (file) {
             try {
+                setIsScanning(true)
                 const scanResult = await scanFile(file)
+                setIsScanning(false)
 
                 if (scanResult.complete) {
-                    alert(
-                        `VirusTotal scan complete for [${scanResult.fileName}] \nMalicious: ${scanResult.data.malicious} \nSuspicious: ${scanResult.data.suspicious} \nUndetected: ${scanResult.data.undetected}`
-                    )
+                    toast({
+                        title: 'Success',
+                        description: `VirusTotal scan complete for [${scanResult.fileName}] \nMalicious: ${scanResult.data.malicious} \nSuspicious: ${scanResult.data.suspicious} \nUndetected: ${scanResult.data.undetected}`,
+                    })
                 } else {
-                    alert(`VirusTotal scan for [${scanResult.fileName}] not complete yet`)
+                    toast({
+                        title: 'Error',
+                        description: `VirusTotal scan for [${scanResult.fileName}] not complete yet`,
+                    })
                 }
             } catch (error) {
-                alert(error)
+                toast({ title: 'Error', description: `${error}` })
             }
         } else {
-            alert('File not selected')
+            toast({ title: 'Error', description: 'File not selected' })
         }
     }
 
@@ -102,15 +115,17 @@ const UploadDialog = ({ triggerRef, onSuccess }: UploadDialogProps) => {
                             type="button"
                             className="w-full bg-blue-600 text-white hover:bg-blue-700 rounded"
                             onClick={handleUpload}
+                            disabled={isUploading}
                         >
-                            Upload
+                            {!isUploading ? 'Upload' : 'Uploading...'}
                         </Button>
                         <Button
                             type="button"
                             className="w-full bg-blue-600 text-white hover:bg-blue-700 rounded"
                             onClick={handleScan}
+                            disabled={isScanning}
                         >
-                            Scan for Viruses
+                            {!isScanning ? 'Scan for Viruses' : 'Scanning...'}
                         </Button>
                     </div>
                 </form>

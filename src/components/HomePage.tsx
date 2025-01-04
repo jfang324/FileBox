@@ -4,6 +4,7 @@ import Menu from '@/components/Menu'
 import SettingsDialog from '@/components/SettingsDialog'
 import ShareDialog from '@/components/ShareDialog'
 import UploadDialog from '@/components/UploadDialog'
+import { useToast } from '@/hooks/use-toast'
 import { FileDocument } from '@/interfaces/FileDocument'
 import {
     deleteFile,
@@ -17,6 +18,7 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 
 const HomePage = () => {
     //state associated with the account
+    const { toast } = useToast()
     const { user, error, isLoading } = useUser()
     const [userMongoId, setUserMongoId] = useState<string>('')
     const [name, setName] = useState<string>('')
@@ -72,11 +74,11 @@ const HomePage = () => {
                 initializeUserDetails(setUserMongoId, setName, setEmail, userDetails)
                 await updateFiles(userDetails._id as string, activeSection)
             } catch (error) {
-                alert(error)
+                toast({ title: 'Error', description: `${error}` })
             }
         }
         init()
-    }, [user, error, isLoading, activeSection])
+    }, [user, error, isLoading, activeSection, toast])
 
     //keeps visible files updated & filtered
     useEffect(() => {
@@ -130,10 +132,13 @@ const HomePage = () => {
                 await Promise.all(selectedFiles.map((fileId) => deleteFile(fileId)))
                 await updateFiles(userMongoId, activeSection)
             } catch (error) {
-                alert(error)
+                toast({ title: 'Error', description: `${error}` })
             }
         } else {
-            alert(`Error deleting files \n${selectedFiles.length} files selected \nuserMongoId: ${userMongoId}`)
+            toast({
+                title: 'Error',
+                description: `Error deleting files \n${selectedFiles.length} files selected \nuserMongoId: ${userMongoId}`,
+            })
         }
     }
 
@@ -172,7 +177,7 @@ const HomePage = () => {
                     window.open(presignedUrl)
                 }
             } catch (error) {
-                alert(error)
+                toast({ title: 'Error', description: `${error}` })
             }
         }
     }
