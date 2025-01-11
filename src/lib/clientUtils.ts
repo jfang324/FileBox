@@ -135,78 +135,20 @@ export async function scanFile(file: File): Promise<{
     const formData = new FormData()
     formData.append('file', await new Response(file.stream()).blob(), file.name)
 
-    const uploadURL = VT_UPLOAD_URL
-    const uploadOptions = {
-        method: 'POST',
-        headers: {
-            accept: 'application/json',
-            'x-apikey': VT_API_KEY,
-        },
-        body: formData,
+    const scanReport = await fetch('/api/scan', { method: 'POST', body: formData })
+
+    if (scanReport.status !== 200) {
+        const errorBody = await scanReport.json()
+        throw new Error(`Error uploading file \n${errorBody.error} \nStatus Code: ${scanReport.status}`)
     }
 
-    const uploadResponse = await fetch(uploadURL, uploadOptions)
+    const scanReportData = await scanReport.json()
 
-    if (uploadResponse.status !== 200) {
-        const errorBody = await uploadResponse.json()
-        throw new Error(`Error uploading file \n${errorBody.error} \nStatus Code: ${uploadResponse.status}`)
+    if (!scanReportData.complete) {
+        throw new Error('Scan report not complete')
     }
 
-    const uploadResponseData = await uploadResponse.json()
-    const file_id = uploadResponseData.data.id
-
-    const report_url = `${VT_REPORT_URL}/${file_id}`
-    const report_options = {
-        method: 'GET',
-        headers: {
-            accept: 'application/json',
-            'x-apikey': VT_API_KEY,
-        },
-    }
-    const maxRetries = 10
-    const retryDelay = 4000
-
-    for (let attempt = 0; attempt < maxRetries; attempt++) {
-        const reportResponse = await fetch(report_url, report_options)
-
-        if (reportResponse.status === 200) {
-            const reportResponseData = await reportResponse.json()
-
-            if (reportResponseData.data.attributes.status === 'completed') {
-                const reportStats = reportResponseData.data.attributes.stats
-
-                return {
-                    complete: true,
-                    fileName: file.name,
-                    data: {
-                        malicious: reportStats.malicious,
-                        suspicious: reportStats.suspicious,
-                        undetected: reportStats.undetected,
-                    },
-                }
-            } else {
-                console.log(
-                    `report not ready yet, attempt ${attempt + 1} of ${maxRetries}, waiting ${
-                        (retryDelay * (attempt + 1)) / 1000
-                    }s`
-                )
-                await new Promise((resolve) => setTimeout(resolve, retryDelay * (attempt + 1)))
-            }
-        } else {
-            const errorBody = await reportResponse.json()
-            throw new Error(`Error uploading file \n${errorBody.error} \nStatus Code: ${reportResponse.status}`)
-        }
-    }
-
-    return {
-        complete: false,
-        fileName: file.name,
-        data: {
-            malicious: 0,
-            suspicious: 0,
-            undetected: 0,
-        },
-    }
+    return scanReportData
 }
 
 /**

@@ -18,14 +18,22 @@ export default function Home() {
             <div className="text-center">
                 <h1 className="text-4xl font-bold">Welcome to FileBox</h1>
                 <p className="text-lg">Please log in to continue</p>
-                <button
-                    onClick={() => {
-                        window.location.href = '/api/auth/login'
-                    }}
-                    className="bg-blue-600 hover:bg-blue-700 text-white font-bold mt-1 py-2 px-4 rounded"
-                >
-                    Log In
-                </button>
+                <div className="flex flex-col items-center justify-center">
+                    <button
+                        onClick={() => {
+                            window.location.href = '/api/auth/login'
+                        }}
+                        className="bg-blue-600 hover:bg-blue-700 text-white font-bold mt-1 py-2 px-4 rounded"
+                    >
+                        Log In
+                    </button>
+                    <button
+                        onClick={() => (window.location.href = 'https://github.com/jfang324/filebox')}
+                        className="bg-blue-600 hover:bg-blue-700 text-white font-bold mt-1 py-2 px-4 rounded"
+                    >
+                        GitHub
+                    </button>
+                </div>
             </div>
         </div>
     )

@@ -71,7 +71,7 @@ const UploadDialog = ({ triggerRef, onSuccess }: UploadDialogProps) => {
                 } else {
                     toast({
                         title: 'Error',
-                        description: `VirusTotal scan for [${scanResult.fileName}] not complete yet`,
+                        description: `VirusTotal scan for [${scanResult.fileName}] not complete yet, please try again later`,
                     })
                 }
             } catch (error) {
