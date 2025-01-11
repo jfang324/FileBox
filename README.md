@@ -56,9 +56,9 @@ DB_PASSWORD = <database password>
 DATABASE_URL = <url provided after creating and choosing to programatiically connect>
 
 //use your virustotal api key
-NEXT_PUBLIC_VIRUS_TOTAL_API_KEY = <virustotal api key>
-NEXT_PUBLIC_VIRUS_TOTAL_UPLOAD_URL = 'https://www.virustotal.com/api/v3/files'
-NEXT_PUBLIC_VIRUS_TOTAL_REPORT_URL = 'https://www.virustotal.com/api/v3/analyses'
+VIRUS_TOTAL_API_KEY = <virustotal api key>
+VIRUS_TOTAL_UPLOAD_URL = 'https://www.virustotal.com/api/v3/files'
+VIRUS_TOTAL_REPORT_URL = 'https://www.virustotal.com/api/v3/analyses'
 ```
 
 5. Start the application:
@@ -104,6 +104,7 @@ _Account settings pop-up_
 ## Known Issues
 
 -   For some file types, the file will be downloaded with no extension
+-   The virus scan works when run locally but not on the Vercel deployment due to execution duration limits
 
 ## Contact
 
