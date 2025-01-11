@@ -72,33 +72,33 @@ npm run start
 
 ## Gallery & Demonstrations
 
-<img src='https://github.com/user-attachments/assets/6f3d6e8d-96d8-448c-a520-0f09ea1b410b'> </img>
+<img src='https://github.com/user-attachments/assets/0ba50c36-be75-42ea-a7a3-54fadac7f441'> </img>
 _Initial login page_
 
-<img src='https://github.com/user-attachments/assets/a515762b-5f15-45ca-b5b4-14e5ebb8c36a'> </img>
+<img src='https://github.com/user-attachments/assets/2d70fc87-1707-46bd-9e1c-3d47fa4a41bb'> </img>
 _Auth0 login page_
 
-<img src='https://github.com/user-attachments/assets/f49aa223-43d6-4f17-958b-82b8663d1b6e'> </img>
+<img src='https://github.com/user-attachments/assets/abf118b4-534d-43c8-b27e-1160cbcbc0ec'> </img>
 _Homepage_
 
-<img src='https://github.com/user-attachments/assets/db7b9d3a-0ea8-4032-8ecd-14599bb5a16d' width="auto" height="500"> </img>
+<img src='https://github.com/user-attachments/assets/8963b292-25bd-46e1-85ec-c93960dcdc5b' width="auto" height="500"> </img>
 
 _Mobile homepage_
 
-<img src='https://github.com/user-attachments/assets/9b2a7c14-8f55-4a72-b975-d4b7e7bcba70'> </img>
+<img src='https://github.com/user-attachments/assets/ae1d54ea-bed9-435b-8e0f-22a4827f1eba'> </img>
 _File upload pop-up_
 
-<img src='https://github.com/user-attachments/assets/cac079f9-dd39-4cbf-be91-d62d7172f035'> </img>
+<img src='https://github.com/user-attachments/assets/da3bec42-b5ca-4676-9b9e-3a279f8bc598'> </img>
 _Options_
 
-<img src='https://github.com/user-attachments/assets/a40d2a65-3065-47ff-a856-3cd346091317'> </img>
+<img src='https://github.com/user-attachments/assets/f6e7d5fe-76f3-4935-8195-88b48ae5de53'> </img>
 _File sharing_
 
-<img src='https://github.com/user-attachments/assets/a30c87c0-59eb-46ee-9c7a-d29933d73b41' width="auto" height="500"> </img>
+<img src='https://github.com/user-attachments/assets/eb18c6f7-4b2b-41d6-bba4-35e54865024c' width="auto" height="500"> </img>
 
 _Mobile sharing_
 
-<img src='https://github.com/user-attachments/assets/989c0dbc-358b-4154-ae4e-a51b8e4b48ae'> </img>
+<img src='https://github.com/user-attachments/assets/2441d32a-2fa8-4571-97f2-e2cd6bb2b9df'> </img>
 _Account settings pop-up_
 
 ## Known Issues
