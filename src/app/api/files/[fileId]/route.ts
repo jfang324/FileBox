@@ -10,14 +10,18 @@ import { NextRequest, NextResponse } from 'next/server'
  *
  * Get a presigned URL for the file
  */
-export async function GET(req: NextRequest, { params }: { params: { fileId: string } }): Promise<NextResponse> {
+export async function GET(
+    req: NextRequest,
+    { params }: { params: Promise<{ fileId: string }> }
+): Promise<NextResponse> {
     try {
         const session = await getSession()
-        const { user, file } = await getUserFile(session, params.fileId)
+        const { fileId } = await params
+        const { user, file } = await getUserFile(session, fileId)
 
         const userMongoId = user._id!.toString()
         const fileOwnerMongoId = file.ownerId.toString()
-        const isSharedResult = await isShared(userMongoId, params.fileId)
+        const isSharedResult = await isShared(userMongoId, fileId)
 
         if (fileOwnerMongoId !== userMongoId && !isSharedResult) {
             return NextResponse.json(
@@ -26,7 +30,7 @@ export async function GET(req: NextRequest, { params }: { params: { fileId: stri
             )
         }
 
-        const signedUrl = await getS3PresignedUrl(params.fileId)
+        const signedUrl = await getS3PresignedUrl(fileId)
         if (!signedUrl) {
             return NextResponse.json({ error: 'Failed to get S3 presigned URL' }, { status: 500 })
         }
@@ -43,10 +47,14 @@ export async function GET(req: NextRequest, { params }: { params: { fileId: stri
  *
  * Delete a file from the database and S3 bucket
  */
-export async function DELETE(req: NextRequest, { params }: { params: { fileId: string } }): Promise<NextResponse> {
+export async function DELETE(
+    req: NextRequest,
+    { params }: { params: Promise<{ fileId: string }> }
+): Promise<NextResponse> {
     try {
         const session = await getSession()
-        const { user, file } = await getUserFile(session, params.fileId)
+        const { fileId } = await params
+        const { user, file } = await getUserFile(session, fileId)
 
         const userMongoId = user._id!.toString()
         const fileOwnerMongoId = file.ownerId.toString()
@@ -63,13 +71,13 @@ export async function DELETE(req: NextRequest, { params }: { params: { fileId: s
             return NextResponse.json({ error: 'Failed to delete file from database' }, { status: 500 })
         }
 
-        const deleteS3Result = await deleteS3File(params.fileId)
+        const deleteS3Result = await deleteS3File(fileId)
         if (!deleteS3Result) {
             return NextResponse.json({ error: 'Failed to delete file from S3' }, { status: 500 })
         }
 
         return NextResponse.json(
-            { message: `File ${params.fileId} deleted successfully. Deleted: ${deleteResult}` },
+            { message: `File ${fileId} deleted successfully. Deleted: ${deleteResult}` },
             { status: 200 }
         )
     } catch (error: any) {

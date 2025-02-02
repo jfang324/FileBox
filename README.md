@@ -18,25 +18,25 @@ To install the application locally, run the following commands:
 
 1. Clone the repository:
 
-```
+```sh
 git clone https://github.com/jfang324/FileBox.git
 ```
 
 2. Navigate to the project directory:
 
-```
-cd filebox
+```sh
+cd FileBox
 ```
 
 3. Install the dependencies:
 
-```
+```sh
 npm install
 ```
 
 4. Create a `.env` file in the project directory and add the following environment variables:
 
-```
+```env
 //use values provided to you after creating an app in auth0
 AUTH0_SECRET = 'use [openssl rand -hex 32] to generate a 32 bytes value'
 AUTH0_BASE_URL = 'http://localhost:3000'
@@ -63,7 +63,7 @@ VIRUS_TOTAL_REPORT_URL = 'https://www.virustotal.com/api/v3/analyses'
 
 5. Start the application:
 
-```
+```sh
 npm run build
 npm run start
 ```

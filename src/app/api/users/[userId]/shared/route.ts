@@ -8,12 +8,16 @@ import { NextRequest, NextResponse } from 'next/server'
  *
  * Get all files shared with the user
  */
-export async function GET(req: NextRequest, { params }: { params: { userId: string } }): Promise<NextResponse> {
+export async function GET(
+    req: NextRequest,
+    { params }: { params: Promise<{ userId: string }> }
+): Promise<NextResponse> {
     try {
         const session = await getSession()
-        fileRetrievalValidation(session, params.userId)
+        const { userId } = await params
+        fileRetrievalValidation(session, userId)
 
-        const files = await getSharedFiles(params.userId)
+        const files = await getSharedFiles(userId)
 
         return NextResponse.json(files, { status: 200 })
     } catch (error: any) {
